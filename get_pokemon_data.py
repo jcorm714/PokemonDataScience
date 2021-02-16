@@ -1,3 +1,6 @@
+"""The purpose of this script is to retrieve information about an individual pokemon
+ex) Name, Type, Abilities and Stats"""
+
 import json
 
 import find_all_pokemon_names
@@ -19,7 +22,9 @@ GEN_I_URL = "https://www.smogon.com/dex/rb/pokemon/"
 all_types = set()
 all_tiers = set()
 
+
 def get_pokemon_types(dom):
+        """Get a list of types for an individual pokemon"""
         pokemon_types = dom.find( "div", class_="PokemonSummary-types" )
         links = pokemon_types.find_all("a")
         links = [str(link.string) for link in links if link.has_attr("class") and "Type" in link["class"]]
@@ -27,7 +32,9 @@ def get_pokemon_types(dom):
                 all_types.add(link)
         return links
 
+
 def get_pokemon_abilities(dom):
+        """get a list of abilities for an individual pokemon"""
         links = dom.find_all("a", class_="AbilityLink")
         abilities = []
         for link in links:
@@ -35,14 +42,20 @@ def get_pokemon_abilities(dom):
                 abilities.append(str(children[0].string))
         return abilities
 
+
 def get_pokemon_tiers(dom):
+        """Get a list of tiers for an individual pokemon"""
         tiers = dom.find("ul", class_="FormatList" )
         tiers = [str(tier.string) for tier in tiers.contents if tier.string is not None]
         for tier in tiers:
                 all_tiers.add(tier)
         return tiers
 
+
 def get_pokemon_stats(dom):
+        """Get the value for each stat for a pokemon
+        returns a dictionary of stats with keys:  
+        HP, Attack, Defense, Sp. Atk, Sp. Def, Speed  """
         stats = {}
         rows = dom.find_all("tr")
         for i, row in enumerate(rows):
@@ -53,12 +66,15 @@ def get_pokemon_stats(dom):
      
                 stat = stat.replace(":", "")
                 stats[stat] = value
-        # only speed displays as None
+        # only speed displays as None web scraping be weird sometimes
         stats["Speed"] = stats['None']
         del stats["None"]
         return stats
 
+
 def get_pokemon_page(name, accessor, gen_url = GEN_VIII_URL):
+        """Make a request to a page in order to retrieve the dom
+        Selenium is used in this case, since smogon uses react"""
         result = ""
         resp = accessor.get(gen_url + name.lower(), logging=True)
         if resp is None:
@@ -71,8 +87,13 @@ def get_pokemon_page(name, accessor, gen_url = GEN_VIII_URL):
         return result
 
 
-
 def get_pokemon_info(name, accessor, url = GEN_VIII_URL):
+        """retreives the metadata about a pokemon, and compacts into a dictionary
+        containing the following keys:"name": 
+         "types"
+         "abilities"
+         "tiers"
+         "stats" """
         html = get_pokemon_page(name, accessor, gen_url=url)
         if not html:
                 return
@@ -99,11 +120,11 @@ def main():
         pokemon_list = []
         for i, name in enumerate(names):
                 print(f"{i + 1}/{len(names)}", end="\t")
-                info = get_pokemon_info(name, accessor, url=GEN_VII_URL)
+                info = get_pokemon_info(name, accessor, url=GEN_I_URL)
                 pokemon_list.append(info)
         accessor.instance().close()
 
-        with open("gen7_info.json", "w") as fil:
+        with open("gen1_info.json", "w") as fil:
                 json.dump({"types": list(all_types),"tiers": list(all_tiers), "pokemon":pokemon_list}, fil, indent=4)
 
 if __name__ == "__main__":

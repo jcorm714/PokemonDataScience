@@ -1,3 +1,7 @@
+"""The purpose of this document is provide a wrapper for 
+calling selenium, and recieving web pages. This class is a 
+Singleton so it can only be instantiated once"""
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from time import sleep
@@ -11,7 +15,7 @@ class WebAccessor(object):
                 if WebAccessor.__instance is None:
                         WebAccessor.__instance = self
                         WebAccessor.__driver_options = webdriver.FirefoxOptions()
-                        WebAccessor.__driver_options.set_headless()
+                        # WebAccessor.__driver_options.set_headless()
                         WebAccessor.__driver = webdriver.Firefox(options=WebAccessor.__driver_options)
                 else:
                         raise(Exception("This is a Singleton"))
@@ -28,6 +32,7 @@ class WebAccessor(object):
                                 print(f"GET {url}")
                         if delay < 1:
                                 delay = 1
+                        # sleep so the server does not drop the connection
                         sleep(delay)
                         WebAccessor.__driver.get(url)
                         return WebAccessor.__driver
