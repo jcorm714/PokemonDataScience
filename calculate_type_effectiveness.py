@@ -2,7 +2,7 @@
 by using Bulbapedias type effective chart."""
 from bs4 import SoupStrainer, BeautifulSoup
 from collections.abc import Iterable
-
+import requests
 class TypeMatchup:
         
         type_order = ["normal",
@@ -34,23 +34,24 @@ class TypeMatchup:
                         self.defenses[pokemon_type] = 1
                         self.offenses[pokemon_type] = 1
 
+def get_type_chart():
+        """Gets the html doc for the type chart from Bulbapedia"""
+        chart_style = "border: 2px solid #111; background:#555; margin-right: 5px; margin-bottom: 5px"
+
+        url = "https://bulbapedia.bulbagarden.net/wiki/Type"
+        resp = requests.get(url)
+        only_tables = SoupStrainer("table", style=chart_style)
+        parser = BeautifulSoup(resp.content, "html.parser", parse_only=only_tables)
+        return parser
 # Values in the chart are stored as a number or a character such as ½
 # Note the × is the muliplication symbol not an x
 convert_to_float = lambda tag: float(str(tag.string).strip().replace("×","").replace("½","0.5"))
 
-
-# the chart is saved locally 
-html_doc = ""
-with open("type_effective_chart.html", "r") as fil:
-        html_doc = "".join(fil.readlines())
-
-
-
-only_rows = SoupStrainer("tr")
-parser = BeautifulSoup(html_doc, "html.parser", parse_only=only_rows)
+html_doc = get_type_chart()
+first_row = html_doc.findChild("tr") 
 type_matchup_info = {}
 types = set() 
-for row in parser.contents:
+for row in [1,2,3]:
         first_col = True
         type_matchup = TypeMatchup()
 
