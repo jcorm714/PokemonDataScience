@@ -48,11 +48,17 @@ def get_type_chart():
 convert_to_float = lambda tag: float(str(tag.string).strip().replace("×","").replace("½","0.5"))
 
 html_doc = get_type_chart()
-first_row = html_doc.findChild("tr") 
+rows = html_doc.findChildren("tr") 
+
 type_matchup_info = {}
 types = set() 
-for row in [1,2,3]:
-        first_col = True
+for count, row in enumerate(rows):
+        
+        # skip the headers
+        if(count < 2):
+                continue
+
+
         type_matchup = TypeMatchup()
 
  
