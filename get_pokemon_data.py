@@ -120,11 +120,13 @@ def main():
         pokemon_list = []
         for i, name in enumerate(names):
                 print(f"{i + 1}/{len(names)}", end="\t")
-                info = get_pokemon_info(name, accessor, url=GEN_I_URL)
+                info = get_pokemon_info(name, accessor, url=GEN_VII_URL)
+                if info is None:
+                    continue
                 pokemon_list.append(info)
         accessor.instance().close()
 
-        with open("gen1_info.json", "w") as fil:
+        with open("gen7_info_2.json", "w") as fil:
                 json.dump({"types": list(all_types),"tiers": list(all_tiers), "pokemon":pokemon_list}, fil, indent=4)
 
 if __name__ == "__main__":
